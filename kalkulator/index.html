@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Scientific dengan Panduan</title>
+    <style>
+        :root {
+            --primary-color: #4a6bdf;
+            --secondary-color: #3a4e8c;
+            --accent-color: #ff7b54;
+            --text-color: #333;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .calculator {
+            width: 100%;
+            max-width: 340px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .calculator:hover {
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .display {
+            padding: 30px 20px 20px;
+            text-align: right;
+            background-color: var(--dark-color);
+            color: var(--light-color);
+            position: relative;
+        }
+
+        .display-history {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            height: 18px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-bottom: 5px;
+        }
+
+        .display-input {
+            font-size: 32px;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-height: 40px;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-gap: 1px;
+            background-color: #e0e0e0;
+        }
+
+        button {
+            border: none;
+            outline: none;
+            padding: 18px 5px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: white;
+            transition: all 0.1s ease;
+            position: relative;
+        }
+
+        button:active {
+            background-color: #f0f0f0;
+            transform: scale(0.98);
+        }
+
+        .operator {
+            background-color: #f0f0f0;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .equal {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .trig-fn, .advanced-fn {
+            background-color: #f8f8f8;
+            color: var(--secondary-color);
+            font-size: 14px;
+        }
+
+        .clear {
+            color: var(--accent-color);
+        }
+
+        .number {
+            background-color: white;
+            font-weight: 500;
+        }
+
+        .span-2 {
+            grid-column: span 2;
+        }
+
+        .help-btn {
+            background-color: var(--accent-color);
+            color: white;
+            grid-column: span 2;
+        }
+
+        .mode-toggle {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .mode-btn {
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .mode-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .angle-toggle {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+            margin-bottom: 10px;
+        }
+
+        .angle-btn {
+            padding: 3px 8px;
+            font-size: 10px;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .angle-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .help-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .help-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .help-content h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .help-content h3 {
+            color: var(--secondary-color);
+            margin: 10px 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .help-content ul {
+            padding-left: 20px;
+        }
+
+        .help-content li {
+            margin-bottom: 8px;
+        }
+
+        .close-help {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            cursor: pointer;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .example {
+            background-color: #f5f5f5;
+            padding: 8px;
+            border-radius: 5px;
+            margin: 5px 0;
+            font-family: monospace;
+        }
+
+        @media (max-width: 400px) {
+            .calculator {
+                max-width: 100%;
+            }
+            
+            .help-content {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display">
+            <div class="mode-toggle">
+                <button class="mode-btn basic-btn active">Basic</button>
+                <button class="mode-btn scientific-btn">Scientific</button>
+            </div>
+            <div class="angle-toggle" id="angleToggle" style="display: none;">
+                <button class="angle-btn deg-btn active">DEG</button>
+                <button class="angle-btn rad-btn">RAD</button>
+                <button class="angle-btn grad-btn">GRAD</button>
+            </div>
+            <div class="display-history" id="history"></div>
+            <div class="display-input" id="result">0</div>
+        </div>
+        <div class="buttons" id="buttons">
+            <!-- Buttons will be loaded here -->
+        </div>
+    </div>
+
+    <div class="help-panel" id="helpPanel">
+        <div class="help-content">
+            <h2>📚 Panduan Kalkulator Scientific</h2>
+            
+            <h3>🔢 Dasar Penggunaan</h3>
+            <ul>
+                <li><strong>Angka 0-9</strong>: Memasukkan bilangan</li>
+                <li><strong>.</strong>: Tambah titik desimal</li>
+                <li><strong>+ - × ÷</strong>: Operasi dasar</li>
+                <li><strong>=</strong>: Tampilkan hasil</li>
+                <li><strong>AC</strong>: Reset kalkulator (All Clear)</li>
+                <li><strong>DEL</strong>: Hapus 1 digit (Backspace)</li>
+                <li><strong>±</strong>: Ganti tanda positif/negatif</li>
+            </ul>
+
+            <h3>📐 Fungsi Scientific</h3>
+            <h4>Trigonometri</h4>
+            <ul>
+                <li><strong>sin/cos/tan</strong>: Fungsi trigonometri dasar</li>
+                <li><strong>asin/acos/atan</strong>: Fungsi invers trigonometri</li>
+                <li>Pilih mode sudut:
+                    <ul>
+                        <li><strong>DEG</strong>: Derajat (default)</li>
+                        <li><strong>RAD</strong>: Radian</li>
+                        <li><strong>GRAD</strong>: Gradian</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h4>Logaritma & Eksponensial</h4>
+            <ul>
+                <li><strong>log</strong>: Logaritma basis 10</li>
+                <li><strong>ln</strong>: Logaritma natural (basis e)</li>
+                <li><strong>10ˣ</strong>: 10 pangkat x</li>
+                <li><strong>eˣ</strong>: e pangkat x</li>
+            </ul>
+
+            <h4>Pangkat & Akar</h4>
+            <ul>
+                <li><strong>x²</strong>: Kuadrat</li>
+                <li><strong>x³</strong>: Pangkat tiga</li>
+                <li><strong>^</strong>: Pangkat (xʸ)</li>
+                <li><strong>√</strong>: Akar kuadrat</li>
+                <li><strong>EE</strong>: Notasi ilmiah (misal 3 EE 5 = 3×10⁵)</li>
+            </ul>
+
+            <h4>Fungsi Lain</h4>
+            <ul>
+                <li><strong>π</strong>: Nilai Pi (3.14159...)</li>
+                <li><strong>e</strong>: Nilai Euler (2.71828...)</li>
+                <li><strong>!</strong>: Faktorial</li>
+                <li><strong>1/x</strong>: Invers (1 dibagi angka)</li>
+                <li><strong>( )</strong>: Pengelompokan operasi</li>
+            </ul>
+
+            <h3>💡 Contoh Penggunaan</h3>
+            <div class="example">
+                <strong>Hitung sin(30°)</strong><br>
+                30 → sin → =
+            </div>
+            <div class="example">
+                <strong>Hitung 5! (faktorial)</strong><br>
+                5 → ! → =
+            </div>
+            <div class="example">
+                <strong>Hitung 2³ + √9</strong><br>
+                2 → x³ → + → 9 → √ → =
+            </div>
+            <div class="example">
+                <strong>Hitung log(100)</strong><br>
+                100 → log → =
+            </div>
+            <div class="example">
+                <strong>Hitung (3+5)×2</strong><br>
+                ( → 3 → + → 5 → ) → × → 2 → =
+            </div>
+
+            <button class="close-help" id="closeHelp">Tutup Panduan</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const resultDisplay = document.getElementById('result');
+            const historyDisplay = document.getElementById('history');
+            const buttonsContainer = document.getElementById('buttons');
+            const basicBtn = document.querySelector('.basic-btn');
+            const scientificBtn = document.querySelector('.scientific-btn');
+            const angleToggle = document.getElementById('angleToggle');
+            const degBtn = document.querySelector('.deg-btn');
+            const radBtn = document.querySelector('.rad-btn');
+            const gradBtn = document.querySelector('.grad-btn');
+            const helpPanel = document.getElementById('helpPanel');
+            const closeHelp = document.getElementById('closeHelp');
+
+            let currentInput = '0';
+            let calculationHistory = '';
+            let prevInput = '';
+            let operation = null;
+            let basicMode = true;
+            let angleMode = 'deg'; // deg, rad, grad
+
+            // Basic calculator buttons
+            const basicButtons = [
+                'AC', 'DEL', '%', '/',
+                '7', '8', '9', '*',
+                '4', '5', '6', '-',
+                '1', '2', '3', '+',
+                '0', '.', '=', 
+            ];
+
+            // Scientific calculator buttons (with numbers)
+            const scientificButtons = [
+                'AC', 'DEL', '%', '√', '/',
+                '7', '8', '9', '^', '*',
+                '4', '5', '6', 'π', '-',
+                '1', '2', '3', 'e', '+',
+                '0', '.', '±', '=', '(',
+                'sin', 'cos', 'tan', ')', 'x²',
+                'asin', 'acos', 'atan', '10ˣ', 'x³',
+                'log', 'ln', 'EE', '!', '1/x'
+            ];
+
+            function updateDisplay() {
+                resultDisplay.textContent = currentInput;
+                historyDisplay.textContent = calculationHistory;
+            }
+
+            // Function to switch between modes
+            function setMode(isBasic) {
+                basicMode = isBasic;
+                basicBtn.classList.toggle('active', isBasic);
+                scientificBtn.classList.toggle('active', !isBasic);
+                angleToggle.style.display = isBasic ? 'none' : 'flex';
+                renderButtons();
+            }
+
+            // Function to set angle mode
+            function setAngleMode(mode) {
+                angleMode = mode;
+                degBtn.classList.toggle('active', mode === 'deg');
+                radBtn.classList.toggle('active', mode === 'rad');
+                gradBtn.classList.toggle('active', mode === 'grad');
+            }
+
+            // Function to render appropriate buttons based on mode
+            function renderButtons() {
+                buttonsContainer.innerHTML = '';
+                const buttonsToRender = basicMode ? basicButtons : scientificButtons;
+
+                buttonsToRender.forEach(buttonText => {
+                    const button = document.createElement('button');
+                    button.textContent = buttonText;
+
+                    // Set button classes based on type
+                    if (['+', '-', '*', '/', '^', 'EE'].includes(buttonText)) {
+                        button.className = 'operator';
+                    } else if (buttonText === '=') {
+                        button.className = 'equal';
+                    } else if (buttonText === 'AC') {
+                        button.className = 'clear';
+                    } else if (['sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'log', 'ln', 
+                               '√', '1/x', '!', 'π', 'e', '(', ')', 'x²', 'x³', '10ˣ', '±'].includes(buttonText)) {
+                        button.className = 'trig-fn';
+                    } else if (!isNaN(buttonText) || buttonText === '.') {
+                        button.className = 'number';
+                    }
+
+                    // Special case for 0 to span 2 columns in basic mode
+                    if (basicMode && buttonText === '0') {
+                        button.className += ' span-2';
+                    }
+
+                    button.addEventListener('click', () => handleButtonClick(buttonText));
+                    buttonsContainer.appendChild(button);
+                });
+
+                // Add help button
+                const helpBtn = document.createElement('button');
+                helpBtn.className = 'help-btn';
+                helpBtn.textContent = 'Bantuan';
+                helpBtn.addEventListener('click', showHelp);
+                buttonsContainer.appendChild(helpBtn);
+            }
+
+            function showHelp() {
+                helpPanel.style.display = 'flex';
+            }
+
+            function hideHelp() {
+                helpPanel.style.display = 'none';
+            }
+
+            function handleButtonClick(buttonText) {
+                if (!isNaN(buttonText) || buttonText === '.') {
+                    handleNumberInput(buttonText);
+                } else if (buttonText === 'AC') {
+                    resetCalculator();
+                } else if (buttonText === 'DEL') {
+                    deleteLastChar();
+                } else if (buttonText === '=') {
+                    calculateResult();
+                } else if (['+', '-', '*', '/', '^', '%', 'EE'].includes(buttonText)) {
+                    handleOperation(buttonText);
+                } else if (buttonText === '±') {
+                    toggleSign();
+                } else {
+                    handleScientificFunction(buttonText);
+                }
+            }
+
+            function handleNumberInput(num) {
+                if (currentInput === '0' && num !== '.') {
+                    currentInput = num;
+                } else if (num === '.' && currentInput.includes('.')) {
+                    return;
+                } else {
+                    currentInput += num;
+                }
+                updateDisplay();
+            }
+
+            function resetCalculator() {
+                currentInput = '0';
+                calculationHistory = '';
+                prevInput = '';
+                operation = null;
+                updateDisplay();
+            }
+
+            function deleteLastChar() {
+                if (currentInput.length === 1) {
+                    currentInput = '0';
+                } else {
+                    currentInput = currentInput.slice(0, -1);
+                }
+                updateDisplay();
+            }
+
+            function toggleSign() {
+                if (currentInput.startsWith('-')) {
+                    currentInput = currentInput.substring(1);
+                } else {
+                    currentInput = '-' + currentInput;
+                }
+                updateDisplay();
+            }
+
+            function handleOperation(op) {
+                if (operation !== null) calculateResult();
+                calculationHistory = currentInput + ' ' + op;
+                prevInput = currentInput;
+                currentInput = '0';
+                operation = op;
+                updateDisplay();
+            }
+
+            function calculateResult() {
+                let result;
+                const prev = parseFloat(prevInput);
+                const current = parseFloat(currentInput);
+
+                if (isNaN(prev) || isNaN(current)) return;
+
+                switch (operation) {
+                    case '+':
+                        result = prev + current;
+                        break;
+                    case '-':
+                        result = prev - current;
+                        break;
+                    case '*':
+                        result = prev * current;
+                        break;
+                    case '/':
+                        result = prev / current;
+                        break;
+                    case '^':
+                        result = Math.pow(prev, current);
+                        break;
+                    case '%':
+                        result = prev % current;
+                        break;
+                    case 'EE':
+                        result = prev * Math.pow(10, current);
+                        break;
+                    default:
+                        return;
+                }
+
+                calculationHistory = prevInput + ' ' + operation + ' ' + currentInput + ' =';
+                currentInput = result.toString();
+                operation = null;
+                updateDisplay();
+            }
+
+            function convertToRadians(value) {
+                switch (angleMode) {
+                    case 'deg':
+                        return value * Math.PI / 180;
+                    case 'grad':
+                        return value * Math.PI / 200;
+                    default: // radians
+                        return value;
+                }
+            }
+
+            function convertFromRadians(value) {
+                switch (angleMode) {
+                    case 'deg':
+                        return value * 180 / Math.PI;
+                    case 'grad':
+                        return value * 200 / Math.PI;
+                    default: // radians
+                        return value;
+                }
+            }
+
+            function handleScientificFunction(func) {
+                let result;
+                const current = parseFloat(currentInput);
+                
+                switch (func) {
+                    // Trigonometric functions
+                    case 'sin':
+                        result = Math.sin(convertToRadians(current));
+                        calculationHistory = `sin(${currentInput}) =`;
+                        break;
+                    case 'cos':
+                        result = Math.cos(convertToRadians(current));
+                        calculationHistory = `cos(${currentInput}) =`;
+                        break;
+                    case 'tan':
+                        result = Math.tan(convertToRadians(current));
+                        calculationHistory = `tan(${currentInput}) =`;
+                        break;
+                    // Inverse trigonometric functions
+                    case 'asin':
+                        result = convertFromRadians(Math.asin(current));
+                        calculationHistory = `asin(${currentInput}) =`;
+                        break;
+                    case 'acos':
+                        result = convertFromRadians(Math.acos(current));
+                        calculationHistory = `acos(${currentInput}) =`;
+                        break;
+                    case 'atan':
+                        result = convertFromRadians(Math.atan(current));
+                        calculationHistory = `atan(${currentInput}) =`;
+                        break;
+                    // Roots and powers
+                    case '√':
+                        result = Math.sqrt(current);
+                        calculationHistory = `√(${currentInput}) =`;
+                        break;
+                    case 'x²':
+                        result = Math.pow(current, 2);
+                        calculationHistory = `(${currentInput})² =`;
+                        break;
+                    case 'x³':
+                        result = Math.pow(current, 3);
+                        calculationHistory = `(${currentInput})³ =`;
+                        break;
+                    // Logarithms
+                    case 'log':
+                        result = Math.log10(current);
+                        calculationHistory = `log(${currentInput}) =`;
+                        break;
+                    case 'ln':
+                        result = Math.log(current);
+                        calculationHistory = `ln(${currentInput}) =`;
+                        break;
+                    case '10ˣ':
+                        result = Math.pow(10, current);
+                        calculationHistory = `10^(${currentInput}) =`;
+                        break;
+                    // Constants
+                    case 'π':
+                        if (currentInput === '0') {
+                            currentInput = Math.PI.toString();
+                        } else {
+                            currentInput += Math.PI.toString();
+                        }
+                        return;
+                    case 'e':
+                        if (currentInput === '0') {
+                            currentInput = Math.E.toString();
+                        } else {
+                            currentInput += Math.E.toString();
+                        }
+                        return;
+                    // Other functions
+                    case '!':
+                        result = factorial(current);
+                        calculationHistory = `(${currentInput})! =`;
+                        break;
+                    case '1/x':
+                        result = 1 / current;
+                        calculationHistory = `1/(${currentInput}) =`;
+                        break;
+                    case '(':
+                        if (currentInput === '0') {
+                            currentInput = '(';
+                        } else {
+                            currentInput += '(';
+                        }
+                        return;
+                    case ')':
+                        currentInput += ')';
+                        return;
+                    case '±':
+                        toggleSign();
+                        return;
+                    default:
+                        return;
+                }
+
+                currentInput = result.toString();
+                updateDisplay();
+            }
+
+            function factorial(num) {
+                if (num < 0) return NaN;
+                if (num === 0 || num === 1) return 1;
+                let result = 1;
+                for (let i = 2; i <= num; i++) {
+                    result *= i;
+                }
+                return result;
+            }
+
+            // Initialize calculator
+            updateDisplay();
+            renderButtons();
+
+            // Add event listeners for mode toggle buttons
+            basicBtn.addEventListener('click', () => setMode(true));
+            scientificBtn.addEventListener('click', () => setMode(false));
+            
+            // Add event listeners for angle mode buttons
+            degBtn.addEventListener('click', () => setAngleMode('deg'));
+            radBtn.addEventListener('click', () => setAngleMode('rad'));
+            gradBtn.addEventListener('click', () => setAngleMode('grad'));
+
+            // Help panel functionality
+            closeHelp.addEventListener('click', hideHelp);
+
+            // Close help when clicking outside
+            helpPanel.addEventListener('click', function(e) {
+                if (e.target === helpPanel) {
+                    hideHelp();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
